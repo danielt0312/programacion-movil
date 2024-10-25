@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- El layout raiz debe ser un ScrollView -->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scroll"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <!-- Solo debe incluir un hijo, de tipo linearLayout -->
+    <LinearLayout
+        android:id="@+id/container"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <!-- De aqui en adelante van los controles que deseen -->
+
+        <TextView
+            android:id="@+id/textview1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hello World!" />
+
+        <!-- Propiedad necesaria cuando un ListView esta en una actividad con scroll  -->
+        <!-- android:nestedScrollingEnabled="true"  -->
+        <ListView
+            android:nestedScrollingEnabled="true"
+            android:background="#ffcccc00"
+            android:id="@+id/listview1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/textview2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hello World!" />
+
+        <ListView
+            android:nestedScrollingEnabled="true"
+            android:background="#00ffff00"
+            android:id="@+id/listview2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/textview3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hello World!" />
+
+        <ListView
+            android:nestedScrollingEnabled="true"
+            android:background="#ffff0000"
+            android:id="@+id/listview3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/textview4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hello World!" />
+
+        <ListView
+            android:nestedScrollingEnabled="true"
+            android:background="#ff00ff00"
+            android:id="@+id/listview4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+
+
+
+    <Button
+        android:text="Boton1"
+        android:id="@+id/button1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:text="Boton2"
+        android:id="@+id/button2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:text="Boton3"
+        android:id="@+id/button3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:text="Boton4"
+        android:id="@+id/button4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    </LinearLayout>
+</ScrollView>

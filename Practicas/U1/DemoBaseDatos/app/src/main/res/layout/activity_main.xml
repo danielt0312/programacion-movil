@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+     
+    >
+    
+
+<LinearLayout 
+    
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity" >
+  
+    <TextView	            
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:id="@+id/TV4"
+        android:text="NOMBRE DEL TUTOR" />
+         
+    <EditText
+        android:id="@+id/ET2"        
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="" />
+    
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:id="@+id/TV5"
+        android:text="ID TUTOR ACTUALIZAR/MODIFICAR" />
+
+
+    
+    <EditText    
+        android:id="@+id/ET1"        
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="" />
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:id="@+id/TV6"
+        android:text="Nombre del Tutorado" />
+
+
+    <EditText
+        android:id="@+id/ET3"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="0" />
+
+
+    
+	        <Button
+	            android:layout_width="fill_parent"
+	            android:layout_height="fill_parent"
+	            android:text="Insertar Tutor"
+	            android:id="@+id/BT01"   />
+	        <Button
+	            android:layout_width="fill_parent"
+	            android:layout_height="fill_parent"
+	            android:text="Borrar Tutor"
+	            android:id="@+id/BT02"   />	        	        
+	        <Button
+	            android:layout_width="fill_parent"
+	            android:layout_height="fill_parent"
+	            android:text="Consultar Tutores"
+	            android:id="@+id/BT03"   />	        	        
+	        <Button
+	            android:layout_width="fill_parent"
+	            android:layout_height="fill_parent"
+	            android:text="Actualizar Tutor"
+	            android:id="@+id/BT04"   />
+	        <Button
+	            android:layout_width="fill_parent"
+	            android:layout_height="fill_parent"
+	            android:text="Agregar Tutorado"
+	            android:id="@+id/BT05"   />	        	        
+	        <Button
+	            android:layout_width="fill_parent"
+	            android:layout_height="fill_parent"
+	            android:text="Consultar Tutorados por Tutor"
+	            android:id="@+id/BT06"   />
+	<Button
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:text="Otra ACtividad"
+		android:id="@+id/BT07"   />
+
+	<TextView
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:id="@+id/TV2"
+        android:text="CONTENIDO DEL TEXTIVIEW" />        
+
+</LinearLayout>
+
+</ScrollView>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <EditText
+        android:id="@+id/nombre"
+        android:layout_weight="1"
+        android:hint="Nombre"
+        android:layout_width="match_parent"
+        android:layout_height="0dp" />
+    <EditText
+        android:id="@+id/apellidoPaterno"
+        android:layout_weight="1"
+        android:hint="Apellido Paterno"
+        android:layout_width="match_parent"
+        android:layout_height="0dp" />
+    <EditText
+        android:id="@+id/apellidoMaterno"
+        android:layout_weight="1"
+        android:hint="Apellido Materno"
+        android:layout_width="match_parent"
+        android:layout_height="0dp" />
+
+    <Button
+        android:id="@+id/btnAgregar"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="Agregar" />
+
+    <ListView
+        android:id="@+id/listview1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4" />
+</LinearLayout>

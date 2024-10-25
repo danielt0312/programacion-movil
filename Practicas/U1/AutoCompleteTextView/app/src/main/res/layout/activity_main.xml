@@ -1,0 +1,125 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:layout_weight="1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp"
+        android:text="Ingresa tu Password"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="bold"
+        android:gravity="center_horizontal" />
+    
+    <EditText
+        android:layout_weight="1"
+        android:id="@+id/password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:padding="12dp"
+        android:gravity="center_vertical|center|center_horizontal" />
+
+<!--        <requestFocus />-->
+<!--    </EditText>-->
+
+    <TextView
+        android:layout_weight="1"
+        android:id="@+id/passwordHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffd33a26"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#fff"
+        android:gravity="center_vertical|center|center_horizontal" />
+
+    <TextView
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/password"
+        android:background="#ff003a26"
+        android:text=" Ingrese un color [In Inglish]"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:paddingBottom="10dp"
+        android:textColor="#fff"
+        android:gravity="center_horizontal" />
+
+
+    <AutoCompleteTextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:layout_weight="1"
+        android:id="@+id/autoCompleteTextView1"
+        android:gravity="center_vertical|center|center_horizontal" />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="New Button"
+        android:id="@+id/button1" />
+
+    <CheckBox
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="New CheckBox"
+        android:id="@+id/checkBox"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_vertical|center|center_horizontal" />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Checar Estado del Checkbox"
+        android:id="@+id/button2" />
+
+    <RadioGroup
+        android:layout_weight="3"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:id="@+id/radio"
+        android:layout_gravity="center_vertical"
+        android:gravity="center_vertical|center|center_horizontal">
+        <RadioButton
+            android:layout_weight="1"
+            android:checked="true"
+            android:id="@+id/rb1"
+            android:text="Opcion 1"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp" />
+        <RadioButton
+            android:layout_weight="1"
+            android:id="@+id/rb2"
+            android:text="Opcion 2"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"/>
+        <RadioButton
+            android:layout_weight="1"
+            android:id="@+id/rb3"
+            android:text="Opcion 3"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp" />
+    </RadioGroup>
+
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="5"
+        android:id="@+id/imageView"
+        android:src="@drawable/logo_sep"
+        android:layout_gravity="center_horizontal" />
+
+    <ListView
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="5"
+        android:id="@+id/listView"/>
+</LinearLayout>

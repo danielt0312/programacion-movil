@@ -1,0 +1,76 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <TextView android:text="hello_world" android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/textView"
+        android:gravity="center_vertical|center|center_horizontal"
+        android:background="#ffc5ff9d" />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="New Button"
+        android:id="@+id/button"
+        android:layout_gravity="center_horizontal" />
+
+    <EditText
+        android:layout_weight="1"
+        android:id="@+id/editText1"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:hint="Ingrese una materia" />
+
+    <Spinner
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/spinner1"
+        android:layout_gravity="center_horizontal" />
+
+        <Spinner
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_columnWeight="1"
+            android:id="@+id/sp_day"
+            android:layout_gravity="center_horizontal" />
+
+        <Spinner
+            android:layout_width="fill_parent"
+            android:layout_weight="1"
+            android:layout_height="0dp"
+            android:layout_columnWeight="1"
+            android:id="@+id/sp_month"
+            android:layout_gravity="center_horizontal" />
+
+        <Spinner
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_columnWeight="1"
+            android:id="@+id/sp_year"
+            android:layout_gravity="center_horizontal" />
+
+
+    <ListView
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:id="@+id/listView"/>
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/textView2"
+        android:gravity="center_vertical|center|center_horizontal"
+        android:background="#ffe47eff" />
+</LinearLayout>

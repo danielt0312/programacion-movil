@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Z_271304_U1_E02</string>
+    <string name="image_preview">Vista previa de imagen</string>
+    <string name="_1">1</string>
+    <string-array name="tamaño_imagenes">
+        <item>full</item>
+        <item>half</item>
+        <item>custom (8x14 cm)</item>
+    </string-array>
+</resources>

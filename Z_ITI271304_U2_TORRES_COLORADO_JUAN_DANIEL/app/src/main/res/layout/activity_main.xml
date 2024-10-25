@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <!--  Controles  -->
+    <LinearLayout
+        android:background="#ffffff"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:onClick="moveDot"
+            android:text="Move"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+        <Button
+            android:onClick="addDot"
+            android:text="Add"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+        <Button
+            android:onClick="deleteDot"
+            android:text="Delete"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+        <Button
+            android:onClick="joinDot"
+            android:text="Join"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <!--  Dibujo  -->
+    <com.z_iti_271304_u2_torres_colorado_juan_daniel.DragAndDropView
+        android:id="@+id/ddv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </com.z_iti_271304_u2_torres_colorado_juan_daniel.DragAndDropView>
+
+</LinearLayout>

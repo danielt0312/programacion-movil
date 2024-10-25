@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textViewTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="16dp"
+        android:text="Generador de mosaico multipágina en PDF"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/buttonSeleccionar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Seleccionar imágenes" />
+
+    <ImageView
+        android:id="@+id/imageViewPreview"
+        android:layout_width="282dp"
+        android:layout_height="393dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="Vista previa de la imagen seleccionada"
+        android:scaleType="centerInside" />
+
+
+    <LinearLayout
+        android:id="@+id/linearLayoutBottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imageViewPreview"
+        android:layout_gravity="center_horizontal"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="16dp">
+
+
+        <!-- Botón de página anterior -->
+        <Button
+            android:id="@+id/buttonPaginaAnterior"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Página Anterior"
+            android:layout_marginEnd="8dp" />
+
+        <!-- Indicador de la página actual -->
+        <TextView
+            android:id="@+id/textViewPaginaActual"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_1"
+            android:textSize="16sp"
+            android:padding="8dp"
+            android:gravity="center" />
+
+        <!-- Botón de página siguiente -->
+        <Button
+            android:id="@+id/buttonPaginaSiguiente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Página Siguiente"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+
+
+    <Button
+        android:id="@+id/buttonGenerarPDF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:text="Generar PDF" />
+
+</LinearLayout>

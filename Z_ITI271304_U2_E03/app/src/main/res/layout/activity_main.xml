@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/generation_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Generación: 0"
+            android:textSize="18sp"
+            android:layout_marginEnd="16dp"/>
+
+        <TextView
+            android:id="@+id/population_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Población: 2"
+            android:textSize="18sp"/>
+    </LinearLayout>
+
+    <com.example.aplicaciondeseleccionnatural.simulation.SimulationView
+        android:id="@+id/simulation_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"/>
+
+
+    <!-- Controles -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/simulation_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/predator_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Wolves"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/restart_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset"/>
+    </LinearLayout>
+
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/population_chart"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"/>
+
+
+
+
+</LinearLayout>
+

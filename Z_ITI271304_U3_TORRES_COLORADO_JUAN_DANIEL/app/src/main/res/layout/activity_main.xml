@@ -1,20 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/imageSelected"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="matrix"
-        android:adjustViewBounds="true"/>
-
-    <Button
-        android:id="@+id/btnSelectImg"
+    <TextView
+        android:layout_gravity="center|top"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Seleccionar imagen"
-        android:layout_gravity="bottom|center"
-        android:padding="10dp"/>
-</FrameLayout>
+        android:id="@+id/txtGrados"
+        android:text="Grados de la imágen: 0.00°"/>
+
+    <!-- Imagen seleccionada -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/imageSelected"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="matrix" />
+
+        <!-- Región cuadrada transparente en el centro -->
+        <View
+            android:id="@+id/overlayRegion"
+            android:layout_width="200dp"
+            android:layout_height="250dp"
+            android:layout_gravity="center"
+            android:background="#80AAAAAA" />
+    </FrameLayout>
+
+    <!-- Botones de control -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <Button
+            android:id="@+id/btnSelectImg"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Seleccionar Imagen" />
+
+        <Button
+            android:id="@+id/btnReset"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Reiniciar" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,12 +1,16 @@
 package com.z_iti_271304_u3_torres_colorado_juan_daniel;
 
+import static android.os.FileUtils.closeQuietly;
+
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -18,7 +22,10 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -41,9 +48,15 @@ public class MainActivity extends AppCompatActivity {
 
     private ScaleGestureDetector scaleGestureDetector;
 
+    private View cropRegion;
+    private Button cropImageBtn;
+
+
     // Modos de interacción
     private enum Mode { NONE, DRAG, ZOOM, ROTATE }
     private Mode mode = Mode.NONE;
+
+    private static final int CODE_WRITE = 43;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +66,24 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Por favor, selecciona una imagen", Toast.LENGTH_SHORT).show();
 
         imageView = findViewById(R.id.imageSelected);
-        overlayRegion = findViewById(R.id.overlayRegion);
         selectImageBtn = findViewById(R.id.btnSelectImg);
         resetBtn = findViewById(R.id.btnReset);
         txtGrados = findViewById(R.id.txtGrados);
+
+        cropRegion = findViewById(R.id.cropRegion);
+        cropImageBtn = findViewById(R.id.btnCropImage);
+
+        cropImageBtn.setOnClickListener(v -> {
+            if (bitmap != null) {
+                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("image/png");
+                intent.putExtra(Intent.EXTRA_TITLE, "cropped_image.png");
+                startActivityForResult(intent, CODE_WRITE);
+            } else {
+                Toast.makeText(this, "No hay imagen cargada para guardar", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Gestor de detección de escala
         scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
@@ -128,12 +155,13 @@ public class MainActivity extends AppCompatActivity {
                 case MotionEvent.ACTION_POINTER_UP:
                     mode = Mode.NONE;
                     lastEvent = null;
-                    checkAlignment();
                     break;
             }
 
             imageView.setImageMatrix(matrix);
             drawRotationInfo(); // Mostrar los grados de rotación
+
+            // Añadir esto para corregir la advertencia
             return true;
         });
     }
@@ -142,15 +170,44 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        final ContentResolver cr = getContentResolver();
+        final Uri uri = data != null ? data.getData() : null;
+
         if (requestCode == READ_IMAGE_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            Uri uri = data.getData();
-            ContentResolver cr = getContentResolver();
             try (InputStream is = cr.openInputStream(uri)) {
                 bitmap = BitmapFactory.decodeStream(is);
                 imageView.setImageBitmap(bitmap);
                 resetImagePosition();
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+        }
+
+        if (requestCode == CODE_WRITE && resultCode == RESULT_OK && data != null) {
+            try {
+                cr.takePersistableUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            } catch (SecurityException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Error al obtener permisos para guardar la imagen", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            OutputStream os = null;
+            try {
+                os = cr.openOutputStream(uri);
+                if (os != null) {
+                    // Comprimir y guardar el bitmap como PNG
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
+                    Toast.makeText(this, "Imagen guardada exitosamente", Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
+            } finally {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    closeQuietly(os);
+                }
             }
         }
     }
@@ -186,54 +243,57 @@ public class MainActivity extends AppCompatActivity {
         txtGrados.setText("Grados de la imagen: " + String.format("%.2f°", currentRotation));
     }
 
-    private void checkAlignment() {
+    private Bitmap cropImage() {
+        // Obtener dimensiones de la región de recorte
+        int cropRegionWidth = cropRegion.getWidth();
+        int cropRegionHeight = cropRegion.getHeight();
+        int cropRegionX = (imageView.getWidth() - cropRegionWidth) / 2;
+        int cropRegionY = (imageView.getHeight() - cropRegionHeight) / 2;
+
+        // Calcular las coordenadas de recorte
         float[] values = new float[9];
         matrix.getValues(values);
 
-        // Obtener los límites de la región superpuesta
-        float regionLeft = overlayRegion.getLeft();
-        float regionTop = overlayRegion.getTop();
-        float regionRight = overlayRegion.getRight();
-        float regionBottom = overlayRegion.getBottom();
+        // Coordenadas de la imagen en la pantalla
+        float scaleX = values[Matrix.MSCALE_X];
+        float scaleY = values[Matrix.MSCALE_Y];
+        float transX = values[Matrix.MTRANS_X];
+        float transY = values[Matrix.MTRANS_Y];
 
-        float regionWidth = regionRight - regionLeft;
-        float regionHeight = regionBottom - regionTop;
+        // Transformar coordenadas al espacio de la imagen original
+        int x = (int) ((cropRegionX - transX) / scaleX);
+        int y = (int) ((cropRegionY - transY) / scaleY);
+        int width = (int) (cropRegionWidth / scaleX);
+        int height = (int) (cropRegionHeight / scaleY);
 
-        // Obtener los límites de la imagen transformada
-        float[] imageCorners = new float[]{
-                0, 0,
-                bitmap.getWidth(), 0,
-                bitmap.getWidth(), bitmap.getHeight(),
-                0, bitmap.getHeight()
-        };
-        matrix.mapPoints(imageCorners);
+        // Validar si las coordenadas están dentro de los límites de la imagen
+        if (x < 0 || y < 0 || x + width > bitmap.getWidth() || y + height > bitmap.getHeight()) {
+            Toast.makeText(this, "La región seleccionada excede los límites de la imagen", Toast.LENGTH_SHORT).show();
+            return null;
+        }
 
-        float imageLeft = Math.min(Math.min(imageCorners[0], imageCorners[2]), Math.min(imageCorners[4], imageCorners[6]));
-        float imageTop = Math.min(Math.min(imageCorners[1], imageCorners[3]), Math.min(imageCorners[5], imageCorners[7]));
-        float imageRight = Math.max(Math.max(imageCorners[0], imageCorners[2]), Math.max(imageCorners[4], imageCorners[6]));
-        float imageBottom = Math.max(Math.max(imageCorners[1], imageCorners[3]), Math.max(imageCorners[5], imageCorners[7]));
-
-        float imageWidth = imageRight - imageLeft;
-        float imageHeight = imageBottom - imageTop;
-
-        // Definir tolerancia
-        float sizeTolerance = 20f; // Tolerancia de 20 píxeles
-
-        // Verificar si la imagen cumple con el criterio
-        boolean isHorizontalAligned =
-                (imageHeight >= regionHeight - sizeTolerance) &&
-                        (imageHeight <= regionHeight + sizeTolerance) &&
-                        (imageLeft <= regionRight && imageRight >= regionLeft);
-
-        boolean isVerticalAligned =
-                (imageWidth >= regionWidth - sizeTolerance) &&
-                        (imageWidth <= regionWidth + sizeTolerance) &&
-                        (imageTop <= regionBottom && imageBottom >= regionTop);
-
-        // Evaluar si al menos una de las dos dimensiones está alineada
-        if (isHorizontalAligned)
-            Toast.makeText(this, "Imágen alineada horizontalmente", Toast.LENGTH_SHORT).show();
-        else if (isVerticalAligned)
-            Toast.makeText(this, "Imágen alineada verticalmente", Toast.LENGTH_SHORT).show();
+        // Recortar y devolver el Bitmap
+        return Bitmap.createBitmap(bitmap, x, y, width, height);
     }
+
+    private void saveCroppedImage(Bitmap croppedBitmap) {
+        try {
+            // Generar un nombre de archivo
+            String fileName = "cropped_image.png";
+            File file = new File(getExternalFilesDir(null), fileName);
+
+            // Guardar el bitmap
+            FileOutputStream outputStream = new FileOutputStream(file);
+            croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+            outputStream.flush();
+            outputStream.close();
+
+            Toast.makeText(this, "Imagen guardada en: " + file.getPath(), Toast.LENGTH_LONG).show();
+            Log.d("image", ""+file.getAbsolutePath());
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }

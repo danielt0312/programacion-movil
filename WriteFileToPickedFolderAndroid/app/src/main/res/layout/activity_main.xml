@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:textColor="#000000"
+        android:background="#ff0000"
+        android:text="Aplicacion mas inutil que mi EX"
+        />
+
+    <Button
+        android:id="@+id/BotonUsuarioSeleccionaArchivoTextoLectura"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:text="Leer TXT" />
+
+    <Button
+        android:id="@+id/BotonUsuarioSeleccionaImagenes"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:text="Leer Imagenes"/>
+
+
+
+    <Button
+        android:id="@+id/BotonUsuarioGuardaArchivoTexto"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:text="Escribir TXT"
+        />
+
+
+    <EditText
+        android:id="@+id/editText1"
+        android:layout_width="match_parent"
+        android:layout_weight="8"
+        android:layout_height="0dp" />
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:src="@drawable/chamarra_gde"
+        android:layout_width="match_parent"
+        android:layout_weight="8"
+        android:layout_height="0dp" />
+
+
+
+
+</LinearLayout>

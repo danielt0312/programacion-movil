@@ -13,7 +13,6 @@
         android:id="@+id/txtGrados"
         android:text="Grados de la imágen: 0.00°"/>
 
-    <!-- Imagen seleccionada -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -25,13 +24,13 @@
             android:layout_height="match_parent"
             android:scaleType="matrix" />
 
-        <!-- Región cuadrada transparente en el centro -->
+        <!-- Región cuadrada transparente para el recorte -->
         <View
-            android:id="@+id/overlayRegion"
-            android:layout_width="200dp"
-            android:layout_height="250dp"
+            android:id="@+id/cropRegion"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
             android:layout_gravity="center"
-            android:background="#80AAAAAA" />
+            android:background="#86B0B0B0" />
     </FrameLayout>
 
     <!-- Botones de control -->
@@ -44,15 +43,22 @@
         <Button
             android:id="@+id/btnSelectImg"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Seleccionar Imagen" />
 
         <Button
+            android:id="@+id/btnCropImage"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Recortar Imagen" />
+
+        <Button
             android:id="@+id/btnReset"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Reiniciar" />
+            android:text="Reiniciar Posición" />
     </LinearLayout>
 </LinearLayout>

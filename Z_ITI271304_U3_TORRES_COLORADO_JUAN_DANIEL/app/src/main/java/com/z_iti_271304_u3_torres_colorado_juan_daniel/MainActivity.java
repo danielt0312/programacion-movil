@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -256,15 +257,25 @@ public class MainActivity extends AppCompatActivity {
         int cropRegionX = (imageView.getWidth() - cropRegionWidth) / 2;
         int cropRegionY = (imageView.getHeight() - cropRegionHeight) / 2;
 
-        // Calcular las coordenadas de recorte
+        // Obtener la posición del ImageView en la pantalla
+        int[] location = new int[2];
+        imageView.getLocationOnScreen(location);
+
+        // Obtener la posición de la región de recorte en la pantalla
+        int[] l_crop = new int[2];
+        cropRegion.getLocationOnScreen(l_crop);
+
+        // Calcular las coordenadas de recorte usando la matriz de transformación
         float[] values = new float[9];
         matrix.getValues(values);
 
-        // Coordenadas de la imagen en la pantalla
         float scaleX = values[Matrix.MSCALE_X];
         float scaleY = values[Matrix.MSCALE_Y];
         float transX = values[Matrix.MTRANS_X];
         float transY = values[Matrix.MTRANS_Y];
+
+        Log.d("Image (Scale)", scaleX + ", " + scaleY);
+        Log.d("Image (Trans)", transX + ", " + transY);
 
         // Transformar coordenadas al espacio de la imagen transformada
         int x = (int) ((cropRegionX - transX) / scaleX);
@@ -272,11 +283,24 @@ public class MainActivity extends AppCompatActivity {
         int width = (int) (cropRegionWidth / scaleX);
         int height = (int) (cropRegionHeight / scaleY);
 
+        Log.d("Image Transformed", x + ", " + y);
+
         // Validar si las coordenadas están dentro de los límites de la imagen transformada
         if (x < 0 || y < 0 || x + width > transformedBitmap.getWidth() || y + height > transformedBitmap.getHeight()) {
             Toast.makeText(this, "La región seleccionada excede los límites de la imagen", Toast.LENGTH_SHORT).show();
             return null;
         }
+
+        // Colorear la región calculada para validar visualmente
+        Paint paint = new Paint();
+        paint.setColor(0x80FF0000); // Color rojo con transparencia (ARGB: Alpha 50%)
+        paint.setStyle(Paint.Style.FILL);
+
+        // Dibujar el rectángulo en la región calculada
+        canvas.drawRect(x, y, x + width, y + height, paint);
+
+        // Mostrar el Bitmap con la región coloreada en el ImageView para ver el resultado
+        imageView.setImageBitmap(transformedBitmap);
 
         // Recortar y devolver el Bitmap
         return Bitmap.createBitmap(transformedBitmap, x, y, width, height);

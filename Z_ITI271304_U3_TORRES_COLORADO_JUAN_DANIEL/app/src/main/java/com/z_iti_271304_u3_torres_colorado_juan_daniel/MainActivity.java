@@ -10,11 +10,9 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -33,12 +31,11 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int READ_IMAGE_REQUEST_CODE = 41;
     private ImageView imageView;
-    private Button selectImageBtn, resetBtn;
+    private Button btnSelectImage, btnResetPosition, btnCropImage;
     private Bitmap bitmap;
     private Matrix matrix = new Matrix();
     private Matrix savedMatrix = new Matrix();
     private TextView txtGrados;
-    private FrameLayout frameImage;
 
     // Variables para el movimiento, escalado y rotación
     private float startX = 0f;
@@ -50,9 +47,6 @@ public class MainActivity extends AppCompatActivity {
     // Escalas
     private Region region;
     private ScaleGestureDetector scaleGestureDetector;
-
-    private View cropRegion;
-    private Button cropImageBtn;
 
     // Modos de interacción
     private enum Mode { NONE, DRAG, ZOOM, ROTATE }
@@ -67,21 +61,22 @@ public class MainActivity extends AppCompatActivity {
 
         Toast.makeText(this, "Por favor, selecciona una imagen", Toast.LENGTH_SHORT).show();
 
-        imageView = findViewById(R.id.imageSelected);
-        selectImageBtn = findViewById(R.id.btnSelectImg);
-        resetBtn = findViewById(R.id.btnReset);
+        imageView = findViewById(R.id.imgSelected);
+        btnSelectImage = findViewById(R.id.btnSelectImage);
+        btnResetPosition = findViewById(R.id.btnReset);
         txtGrados = findViewById(R.id.txtGrados);
-        frameImage = findViewById(R.id.frameImage);
-        cropRegion = findViewById(R.id.cropRegion);
-        cropImageBtn = findViewById(R.id.btnCropImage);
+        btnCropImage = findViewById(R.id.btnCropImage);
 
-        region = new Region(frameImage, cropRegion);
+        FrameLayout fmyImage = findViewById(R.id.fmyImage);
 
-        // Redimencionar tamaño de la región a recortar despues de que su contenedor este creado
-        frameImage.getViewTreeObserver().addOnGlobalLayoutListener(() -> region.customRegionSize());
+        // Redimensionar tamaño de la región a recortar despues de que su contenedor este creado
+        region = new Region(fmyImage, findViewById(R.id.viewCropRegion));
+        fmyImage.getViewTreeObserver().addOnGlobalLayoutListener(() -> region.customRegionSize());
 
-        // Botón para recortar la imagen
-        cropImageBtn.setOnClickListener(v -> {
+        // Gestor de detección de escala
+        scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener(matrix, imageView));
+
+        btnCropImage.setOnClickListener(v -> {
             if (bitmap != null) {
                 Bitmap croppedBitmap = cropImage();
                 if (croppedBitmap != null) {
@@ -92,19 +87,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Gestor de detección de escala
-        scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener(matrix, imageView));
-
-        // Botón para seleccionar la imagen
-        selectImageBtn.setOnClickListener(v -> {
+        btnSelectImage.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("image/*");
             startActivityForResult(intent, READ_IMAGE_REQUEST_CODE);
         });
 
-        // Botón para reiniciar la imagen
-        resetBtn.setOnClickListener(v -> {
+        btnResetPosition.setOnClickListener(v -> {
             if (bitmap != null) {
                 resetImagePosition();
             } else {
@@ -270,7 +260,6 @@ public class MainActivity extends AppCompatActivity {
         // Recortar y devolver el Bitmap
         return Bitmap.createBitmap(bitmap, x, y, width, height);
     }
-
 
     private void saveCroppedImage(Bitmap croppedBitmap) {
         try {

@@ -14,20 +14,20 @@
         android:text="Grados de la imágen: 0.00°"/>
 
     <FrameLayout
-        android:id="@+id/frameImage"
+        android:id="@+id/fmyImage"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
         <ImageView
-            android:id="@+id/imageSelected"
+            android:id="@+id/imgSelected"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="matrix" />
 
         <!-- Región cuadrada transparente para el recorte -->
         <View
-            android:id="@+id/cropRegion"
+            android:id="@+id/viewCropRegion"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_gravity="center"
@@ -42,7 +42,7 @@
         android:padding="10dp">
 
         <Button
-            android:id="@+id/btnSelectImg"
+            android:id="@+id/btnSelectImage"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"

@@ -16,7 +16,9 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,26 +35,27 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int READ_IMAGE_REQUEST_CODE = 41;
     private ImageView imageView;
-    private View overlayRegion;
     private Button selectImageBtn, resetBtn;
     private Bitmap bitmap;
     private Matrix matrix = new Matrix();
     private Matrix savedMatrix = new Matrix();
     private TextView txtGrados;
+    private FrameLayout frameImage;
 
     // Variables para el movimiento, escalado y rotación
     private float startX = 0f;
     private float startY = 0f;
-    private float scale = 1f;
     private float lastAngle = 0f;
     private float rotation = 0f;
     private float[] lastEvent = null;
 
+    // Escalas
+    private enum Scale { SQUARE, RECTANGLE }
+    private Scale scale = Scale.SQUARE;
     private ScaleGestureDetector scaleGestureDetector;
 
     private View cropRegion;
     private Button cropImageBtn;
-
 
     // Modos de interacción
     private enum Mode { NONE, DRAG, ZOOM, ROTATE }
@@ -71,9 +74,12 @@ public class MainActivity extends AppCompatActivity {
         selectImageBtn = findViewById(R.id.btnSelectImg);
         resetBtn = findViewById(R.id.btnReset);
         txtGrados = findViewById(R.id.txtGrados);
-
+        frameImage = findViewById(R.id.frameImage);
         cropRegion = findViewById(R.id.cropRegion);
         cropImageBtn = findViewById(R.id.btnCropImage);
+
+        // Redimencionar tamaño de la región a recortar despues de que su contenedor este creado
+        frameImage.getViewTreeObserver().addOnGlobalLayoutListener(this::customRegionSize);
 
         // Botón para recortar la imagen
         cropImageBtn.setOnClickListener(v -> {
@@ -88,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Gestor de detección de escala
-        scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
+        scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener(matrix, imageView));
 
         // Botón para seleccionar la imagen
         selectImageBtn.setOnClickListener(v -> {
@@ -107,65 +113,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Evento táctil en el ImageView
-        imageView.setOnTouchListener((v, event) -> {
-            if (bitmap == null) return false; // Validar que la imagen esté cargada
-
-            scaleGestureDetector.onTouchEvent(event);
-
-            switch (event.getAction() & MotionEvent.ACTION_MASK) {
-                case MotionEvent.ACTION_DOWN:
-                    savedMatrix.set(matrix);
-                    startX = event.getX();
-                    startY = event.getY();
-                    mode = Mode.DRAG;
-                    lastEvent = null;
-                    break;
-
-                case MotionEvent.ACTION_POINTER_DOWN:
-                    savedMatrix.set(matrix);
-                    mode = Mode.ZOOM;
-                    if (event.getPointerCount() == 2) {
-                        lastAngle = getRotation(event);
-                        mode = Mode.ROTATE;
-                    }
-                    lastEvent = new float[4];
-                    lastEvent[0] = event.getX(0);
-                    lastEvent[1] = event.getY(0);
-                    lastEvent[2] = event.getX(1);
-                    lastEvent[3] = event.getY(1);
-                    break;
-
-                case MotionEvent.ACTION_MOVE:
-                    if (mode == Mode.DRAG) {
-                        matrix.set(savedMatrix);
-                        float dx = event.getX() - startX;
-                        float dy = event.getY() - startY;
-                        matrix.postTranslate(dx, dy);
-
-                    } else if (mode == Mode.ZOOM || mode == Mode.ROTATE) {
-                        if (lastEvent != null && event.getPointerCount() == 2) {
-                            float newAngle = getRotation(event);
-                            rotation = newAngle - lastAngle;
-                            matrix.postRotate(rotation, imageView.getWidth() / 2f, imageView.getHeight() / 2f);
-                            lastAngle = newAngle;
-                        }
-                    }
-                    break;
-
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_POINTER_UP:
-                    mode = Mode.NONE;
-                    lastEvent = null;
-                    break;
-            }
-
-            imageView.setImageMatrix(matrix);
-            drawRotationInfo(); // Mostrar los grados de rotación
-
-            // Añadir esto para corregir la advertencia
-            return true;
-        });
+        imageView.setOnTouchListener(touchListener());
     }
 
     // Manejo de selección de imagen
@@ -214,35 +162,73 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Listener para el gesto de escala
-    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            float scaleFactor = detector.getScaleFactor();
-            scale *= scaleFactor;
-            matrix.postScale(scaleFactor, scaleFactor, detector.getFocusX(), detector.getFocusY());
-            imageView.setImageMatrix(matrix);
-            return true;
-        }
+    private View.OnTouchListener touchListener() {
+        return new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (bitmap == null) return false; // Validar que la imagen esté cargada
+
+                scaleGestureDetector.onTouchEvent(event);
+
+                switch (event.getAction() & MotionEvent.ACTION_MASK) {
+                    case MotionEvent.ACTION_DOWN:
+                        savedMatrix.set(matrix);
+                        startX = event.getX();
+                        startY = event.getY();
+                        mode = Mode.DRAG;
+                        lastEvent = null;
+                        break;
+
+                    case MotionEvent.ACTION_POINTER_DOWN:
+                        savedMatrix.set(matrix);
+                        mode = Mode.ZOOM;
+                        if (event.getPointerCount() == 2) {
+                            lastAngle = getRotation(event);
+                            mode = Mode.ROTATE;
+                        }
+                        lastEvent = new float[4];
+                        lastEvent[0] = event.getX(0);
+                        lastEvent[1] = event.getY(0);
+                        lastEvent[2] = event.getX(1);
+                        lastEvent[3] = event.getY(1);
+                        break;
+
+                    case MotionEvent.ACTION_MOVE:
+                        if (mode == Mode.DRAG) {
+                            matrix.set(savedMatrix);
+                            float dx = event.getX() - startX;
+                            float dy = event.getY() - startY;
+                            matrix.postTranslate(dx, dy);
+
+                        } else if (mode == Mode.ZOOM || mode == Mode.ROTATE) {
+                            if (lastEvent != null && event.getPointerCount() == 2) {
+                                float newAngle = getRotation(event);
+                                rotation = newAngle - lastAngle;
+                                matrix.postRotate(rotation, imageView.getWidth() / 2f, imageView.getHeight() / 2f);
+                                lastAngle = newAngle;
+                            }
+                        }
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_POINTER_UP:
+                        mode = Mode.NONE;
+                        lastEvent = null;
+                        break;
+                }
+
+                imageView.setImageMatrix(matrix);
+                drawRotationInfo();
+
+                return true;
+            }
+        };
     }
 
     private float getRotation(MotionEvent event) {
         double deltaX = (event.getX(0) - event.getX(1));
         double deltaY = (event.getY(0) - event.getY(1));
         return (float) Math.toDegrees(Math.atan2(deltaY, deltaX));
-    }
-
-    private void resetImagePosition() {
-        matrix.reset();
-        imageView.setImageMatrix(matrix);
-        imageView.invalidate();
-    }
-
-    private void drawRotationInfo() {
-        float[] values = new float[9];
-        matrix.getValues(values);
-        float currentRotation = (float) Math.toDegrees(Math.atan2(values[Matrix.MSKEW_X], values[Matrix.MSCALE_X]));
-        txtGrados.setText("Grados de la imagen: " + String.format("%.2f°", currentRotation));
     }
 
     private Bitmap cropImage() {
@@ -254,14 +240,15 @@ public class MainActivity extends AppCompatActivity {
         // Obtener dimensiones de la región de recorte
         int cropRegionWidth = cropRegion.getWidth();
         int cropRegionHeight = cropRegion.getHeight();
+
+        Log.d("CropRegion", cropRegionWidth + "x" + cropRegionHeight);
+
         int cropRegionX = (imageView.getWidth() - cropRegionWidth) / 2;
         int cropRegionY = (imageView.getHeight() - cropRegionHeight) / 2;
 
-        // Obtener la posición del ImageView en la pantalla
         int[] location = new int[2];
         imageView.getLocationOnScreen(location);
 
-        // Obtener la posición de la región de recorte en la pantalla
         int[] l_crop = new int[2];
         cropRegion.getLocationOnScreen(l_crop);
 
@@ -269,6 +256,7 @@ public class MainActivity extends AppCompatActivity {
         float[] values = new float[9];
         matrix.getValues(values);
 
+        // Coordenadas de la imagen en la pantalla
         float scaleX = values[Matrix.MSCALE_X];
         float scaleY = values[Matrix.MSCALE_Y];
         float transX = values[Matrix.MTRANS_X];
@@ -300,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
         canvas.drawRect(x, y, x + width, y + height, paint);
 
         // Mostrar el Bitmap con la región coloreada en el ImageView para ver el resultado
-        imageView.setImageBitmap(transformedBitmap);
+//        imageView.setImageBitmap(transformedBitmap);
 
         // Recortar y devolver el Bitmap
         return Bitmap.createBitmap(transformedBitmap, x, y, width, height);
@@ -323,5 +311,35 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
             Toast.makeText(this, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void resetImagePosition() {
+        matrix.reset();
+        imageView.setImageMatrix(matrix);
+        imageView.invalidate();
+    }
+
+    private void drawRotationInfo() {
+        float[] values = new float[9];
+        matrix.getValues(values);
+        float currentRotation = (float) Math.toDegrees(Math.atan2(values[Matrix.MSKEW_X], values[Matrix.MSCALE_X]));
+        txtGrados.setText("Grados de la imagen: " + String.format("%.2f°", currentRotation));
+    }
+
+    private void customRegionSize() {
+        float porcentaje = 0.9F;
+        int width = (int) (frameImage.getWidth() * porcentaje);
+        int height = (int) (frameImage.getHeight() * porcentaje);
+
+        ViewGroup.LayoutParams params = cropRegion.getLayoutParams();
+        if (scale.equals(Scale.SQUARE)) {
+            params.width = width;
+            params.height = width;
+        } else {
+            params.width = width;
+            params.height = height;
+        }
+
+        cropRegion.setLayoutParams(params);
     }
 }

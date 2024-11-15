@@ -6,9 +6,7 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -50,8 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private float[] lastEvent = null;
 
     // Escalas
-    private enum Scale { SQUARE, RECTANGLE }
-    private Scale scale = Scale.SQUARE;
+    private Region region;
     private ScaleGestureDetector scaleGestureDetector;
 
     private View cropRegion;
@@ -78,8 +75,10 @@ public class MainActivity extends AppCompatActivity {
         cropRegion = findViewById(R.id.cropRegion);
         cropImageBtn = findViewById(R.id.btnCropImage);
 
+        region = new Region(frameImage, cropRegion);
+
         // Redimencionar tamaño de la región a recortar despues de que su contenedor este creado
-        frameImage.getViewTreeObserver().addOnGlobalLayoutListener(this::customRegionSize);
+        frameImage.getViewTreeObserver().addOnGlobalLayoutListener(() -> region.customRegionSize());
 
         // Botón para recortar la imagen
         cropImageBtn.setOnClickListener(v -> {
@@ -232,67 +231,46 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Bitmap cropImage() {
-        // Aplicar la transformación al bitmap
-        Bitmap transformedBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), bitmap.getConfig());
-        Canvas canvas = new Canvas(transformedBitmap);
-        canvas.drawBitmap(bitmap, matrix, null);
+        int cropRegionWidth = region.getWidth();
+        int cropRegionHeight = region.getHeight();
 
-        // Obtener dimensiones de la región de recorte
-        int cropRegionWidth = cropRegion.getWidth();
-        int cropRegionHeight = cropRegion.getHeight();
-
-        Log.d("CropRegion", cropRegionWidth + "x" + cropRegionHeight);
-
-        int cropRegionX = (imageView.getWidth() - cropRegionWidth) / 2;
-        int cropRegionY = (imageView.getHeight() - cropRegionHeight) / 2;
-
-        int[] location = new int[2];
-        imageView.getLocationOnScreen(location);
-
-        int[] l_crop = new int[2];
-        cropRegion.getLocationOnScreen(l_crop);
-
-        // Calcular las coordenadas de recorte usando la matriz de transformación
+        // Obtener dimensiones de la imagen después de la transformación
         float[] values = new float[9];
         matrix.getValues(values);
 
-        // Coordenadas de la imagen en la pantalla
+        // Escala de la imagen
         float scaleX = values[Matrix.MSCALE_X];
         float scaleY = values[Matrix.MSCALE_Y];
-        float transX = values[Matrix.MTRANS_X];
-        float transY = values[Matrix.MTRANS_Y];
 
-        Log.d("Image (Scale)", scaleX + ", " + scaleY);
-        Log.d("Image (Trans)", transX + ", " + transY);
+        // Validar que la imagen esté ampliada más allá de la región de recorte
+        int scaledImageWidth = (int) (bitmap.getWidth() * scaleX);
+        int scaledImageHeight = (int) (bitmap.getHeight() * scaleY);
 
-        // Transformar coordenadas al espacio de la imagen transformada
-        int x = (int) ((cropRegionX - transX) / scaleX);
-        int y = (int) ((cropRegionY - transY) / scaleY);
+        if (scaledImageWidth < cropRegionWidth || scaledImageHeight < cropRegionHeight) {
+            Toast.makeText(this, "La imagen debe ser más grande que la región de recorte", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        // Coordenadas de la región de recorte
+        int cropRegionX = (imageView.getWidth() - cropRegionWidth) / 2;
+        int cropRegionY = (imageView.getHeight() - cropRegionHeight) / 2;
+
+        // Calcular la posición del recorte en la imagen escalada
+        int x = (int) ((cropRegionX - values[Matrix.MTRANS_X]) / scaleX);
+        int y = (int) ((cropRegionY - values[Matrix.MTRANS_Y]) / scaleY);
         int width = (int) (cropRegionWidth / scaleX);
         int height = (int) (cropRegionHeight / scaleY);
 
-        Log.d("Image Transformed", x + ", " + y);
-
-        // Validar si las coordenadas están dentro de los límites de la imagen transformada
-        if (x < 0 || y < 0 || x + width > transformedBitmap.getWidth() || y + height > transformedBitmap.getHeight()) {
+        // Validar los límites de la imagen
+        if (x < 0 || y < 0 || x + width > bitmap.getWidth() || y + height > bitmap.getHeight()) {
             Toast.makeText(this, "La región seleccionada excede los límites de la imagen", Toast.LENGTH_SHORT).show();
             return null;
         }
 
-        // Colorear la región calculada para validar visualmente
-        Paint paint = new Paint();
-        paint.setColor(0x80FF0000); // Color rojo con transparencia (ARGB: Alpha 50%)
-        paint.setStyle(Paint.Style.FILL);
-
-        // Dibujar el rectángulo en la región calculada
-        canvas.drawRect(x, y, x + width, y + height, paint);
-
-        // Mostrar el Bitmap con la región coloreada en el ImageView para ver el resultado
-//        imageView.setImageBitmap(transformedBitmap);
-
         // Recortar y devolver el Bitmap
-        return Bitmap.createBitmap(transformedBitmap, x, y, width, height);
+        return Bitmap.createBitmap(bitmap, x, y, width, height);
     }
+
 
     private void saveCroppedImage(Bitmap croppedBitmap) {
         try {
@@ -324,22 +302,5 @@ public class MainActivity extends AppCompatActivity {
         matrix.getValues(values);
         float currentRotation = (float) Math.toDegrees(Math.atan2(values[Matrix.MSKEW_X], values[Matrix.MSCALE_X]));
         txtGrados.setText("Grados de la imagen: " + String.format("%.2f°", currentRotation));
-    }
-
-    private void customRegionSize() {
-        float porcentaje = 0.9F;
-        int width = (int) (frameImage.getWidth() * porcentaje);
-        int height = (int) (frameImage.getHeight() * porcentaje);
-
-        ViewGroup.LayoutParams params = cropRegion.getLayoutParams();
-        if (scale.equals(Scale.SQUARE)) {
-            params.width = width;
-            params.height = width;
-        } else {
-            params.width = width;
-            params.height = height;
-        }
-
-        cropRegion.setLayoutParams(params);
     }
 }

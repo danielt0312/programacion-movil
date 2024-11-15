@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
@@ -73,15 +74,15 @@ public class MainActivity extends AppCompatActivity {
         cropRegion = findViewById(R.id.cropRegion);
         cropImageBtn = findViewById(R.id.btnCropImage);
 
+        // Botón para recortar la imagen
         cropImageBtn.setOnClickListener(v -> {
             if (bitmap != null) {
-                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("image/png");
-                intent.putExtra(Intent.EXTRA_TITLE, "cropped_image.png");
-                startActivityForResult(intent, CODE_WRITE);
+                Bitmap croppedBitmap = cropImage();
+                if (croppedBitmap != null) {
+                    saveCroppedImage(croppedBitmap);
+                }
             } else {
-                Toast.makeText(this, "No hay imagen cargada para guardar", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "No hay imagen cargada", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -244,6 +245,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private Bitmap cropImage() {
+        // Aplicar la transformación al bitmap
+        Bitmap transformedBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), bitmap.getConfig());
+        Canvas canvas = new Canvas(transformedBitmap);
+        canvas.drawBitmap(bitmap, matrix, null);
+
         // Obtener dimensiones de la región de recorte
         int cropRegionWidth = cropRegion.getWidth();
         int cropRegionHeight = cropRegion.getHeight();
@@ -260,26 +266,26 @@ public class MainActivity extends AppCompatActivity {
         float transX = values[Matrix.MTRANS_X];
         float transY = values[Matrix.MTRANS_Y];
 
-        // Transformar coordenadas al espacio de la imagen original
+        // Transformar coordenadas al espacio de la imagen transformada
         int x = (int) ((cropRegionX - transX) / scaleX);
         int y = (int) ((cropRegionY - transY) / scaleY);
         int width = (int) (cropRegionWidth / scaleX);
         int height = (int) (cropRegionHeight / scaleY);
 
-        // Validar si las coordenadas están dentro de los límites de la imagen
-        if (x < 0 || y < 0 || x + width > bitmap.getWidth() || y + height > bitmap.getHeight()) {
+        // Validar si las coordenadas están dentro de los límites de la imagen transformada
+        if (x < 0 || y < 0 || x + width > transformedBitmap.getWidth() || y + height > transformedBitmap.getHeight()) {
             Toast.makeText(this, "La región seleccionada excede los límites de la imagen", Toast.LENGTH_SHORT).show();
             return null;
         }
 
         // Recortar y devolver el Bitmap
-        return Bitmap.createBitmap(bitmap, x, y, width, height);
+        return Bitmap.createBitmap(transformedBitmap, x, y, width, height);
     }
 
     private void saveCroppedImage(Bitmap croppedBitmap) {
         try {
             // Generar un nombre de archivo
-            String fileName = "cropped_image.png";
+            String fileName = "cropped_image_" + System.currentTimeMillis() + ".png";
             File file = new File(getExternalFilesDir(null), fileName);
 
             // Guardar el bitmap
@@ -288,12 +294,10 @@ public class MainActivity extends AppCompatActivity {
             outputStream.flush();
             outputStream.close();
 
-            Toast.makeText(this, "Imagen guardada en: " + file.getPath(), Toast.LENGTH_LONG).show();
-            Log.d("image", ""+file.getAbsolutePath());
+            Toast.makeText(this, "Imagen guardada en: " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
         }
     }
-
 }

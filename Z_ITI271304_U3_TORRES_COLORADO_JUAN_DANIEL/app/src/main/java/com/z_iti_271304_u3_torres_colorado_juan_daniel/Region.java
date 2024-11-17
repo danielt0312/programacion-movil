@@ -71,7 +71,6 @@ public class Region {
         }
 
         cropRegion.setLayoutParams(params);
-        // Aquí actualizamos la posición de la región después de cambiar el tamaño
         cropRegion.setX((frameImage.getWidth() - cropRegion.getWidth()) / 2f);
         cropRegion.setY((frameImage.getHeight() - cropRegion.getHeight()) / 2f);
     }

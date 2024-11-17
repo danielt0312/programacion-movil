@@ -3,6 +3,7 @@ package com.z_iti_271304_u3_torres_colorado_juan_daniel;
 import static android.os.FileUtils.closeQuietly;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,6 +11,8 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -23,8 +26,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -110,7 +111,6 @@ public class MainActivity extends AppCompatActivity {
         imageView.setOnTouchListener(touchListener());
     }
 
-    // Manejo de selección de imagen
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -141,7 +141,6 @@ public class MainActivity extends AppCompatActivity {
             try {
                 os = cr.openOutputStream(uri);
                 if (os != null) {
-                    // Comprimir y guardar el bitmap como PNG
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
                     Toast.makeText(this, "Imagen guardada exitosamente", Toast.LENGTH_SHORT).show();
                 }
@@ -160,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
         return new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (bitmap == null) return false; // Validar que la imagen esté cargada
+                if (bitmap == null) return false;
 
                 scaleGestureDetector.onTouchEvent(event);
 
@@ -229,15 +228,12 @@ public class MainActivity extends AppCompatActivity {
         int cropRegionWidth = region.getWidth();
         int cropRegionHeight = region.getHeight();
 
-        // Obtener dimensiones de la imagen después de la transformación
         float[] values = new float[9];
         matrix.getValues(values);
 
-        // Escala de la imagen
         float scaleX = values[Matrix.MSCALE_X];
         float scaleY = values[Matrix.MSCALE_Y];
 
-        // Validar que la imagen esté ampliada más allá de la región de recorte
         int scaledImageWidth = (int) (bitmap.getWidth() * scaleX);
         int scaledImageHeight = (int) (bitmap.getHeight() * scaleY);
 
@@ -246,17 +242,14 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
 
-        // Coordenadas de la región de recorte
         int cropRegionX = (imageView.getWidth() - cropRegionWidth) / 2;
         int cropRegionY = (imageView.getHeight() - cropRegionHeight) / 2;
 
-        // Calcular la posición del recorte en la imagen escalada
         int x = (int) ((cropRegionX - values[Matrix.MTRANS_X]) / scaleX);
         int y = (int) ((cropRegionY - values[Matrix.MTRANS_Y]) / scaleY);
         int width = (int) (cropRegionWidth / scaleX);
         int height = (int) (cropRegionHeight / scaleY);
 
-        // Validar los límites de la imagen
         if (x < 0 || y < 0 || x + width > bitmap.getWidth() || y + height > bitmap.getHeight()) {
             Toast.makeText(this, "La región seleccionada excede los límites de la imagen", Toast.LENGTH_SHORT).show();
             return null;
@@ -267,43 +260,48 @@ public class MainActivity extends AppCompatActivity {
 
         float angleInRadians = (float) Math.toRadians(rotationAngle);
 
-        // Calcular las nuevas coordenadas (x', y') después de la rotación
         float cosAngle = (float) Math.cos(angleInRadians);
         float sinAngle = (float) Math.sin(angleInRadians);
 
-        // Aplicar la fórmula de rotación
         float newX = (x - centerX) * cosAngle - (y - centerY) * sinAngle + centerX;
         float newY = (x - centerX) * sinAngle + (y - centerY) * cosAngle + centerY;
 
         Log.d("Point", x+","+y);
         Log.d("RegionPoint", ((int) region.getX())+"," + ((int) region.getY()));
 
-        Bitmap b = Bitmap.createBitmap(bitmap, x, y, width, height);
-
-        Bitmap rotate = Bitmap.createBitmap(bitmap, (int) newX, (int) newY, width, height, matrix, true);
-
-        // Recortar y devolver el Bitmap
-        return rotate;
+        return Bitmap.createBitmap(bitmap, (int) newX, (int) newY, width, height, matrix, true);
     }
 
     private void saveImage(Bitmap bitmap) {
         try {
-            // Generar un nombre de archivo
-            String fileName = "cropped_image_" + System.currentTimeMillis() + ".png";
-            File file = new File(getExternalFilesDir(null), fileName);
+            ContentResolver contentResolver = getContentResolver();
+            Uri contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
-            // Guardar el bitmap
-            FileOutputStream outputStream = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-            outputStream.flush();
-            outputStream.close();
+            String fileName = "cropped_image.png";
 
-            Toast.makeText(this, "Imagen guardada en: " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+            contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
+            contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES); // Directorio Pictures
+
+            Uri fileUri = contentResolver.insert(contentUri, contentValues);
+
+            if (fileUri != null) {
+                try (OutputStream outputStream = contentResolver.openOutputStream(fileUri)) {
+                    if (outputStream != null) {
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                        Toast.makeText(this, "Imagen guardada en la carpeta Pictures", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(this, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private void resetImagePosition() {
         matrix.reset();

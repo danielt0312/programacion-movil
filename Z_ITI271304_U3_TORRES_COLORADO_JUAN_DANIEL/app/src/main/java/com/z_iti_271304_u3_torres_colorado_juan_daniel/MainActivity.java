@@ -10,6 +10,7 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int READ_IMAGE_REQUEST_CODE = 41;
     private ImageView imageView;
-    private Button btnSelectImage, btnResetPosition, btnCropImage;
+    private Button btnSelectImage, btnResetPosition, btnCropImage, btnChangeRegion;
     private Bitmap bitmap;
     private Matrix matrix = new Matrix();
     private Matrix savedMatrix = new Matrix();
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private float lastAngle = 0f;
     private float rotation = 0f;
     private float[] lastEvent = null;
+    private float rotationAngle = 0f;
 
     // Escalas
     private Region region;
@@ -66,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         btnResetPosition = findViewById(R.id.btnReset);
         txtGrados = findViewById(R.id.txtGrados);
         btnCropImage = findViewById(R.id.btnCropImage);
+        btnChangeRegion = findViewById(R.id.btnChangeRegion);
 
         FrameLayout fmyImage = findViewById(R.id.fmyImage);
 
@@ -80,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
             if (bitmap != null) {
                 Bitmap croppedBitmap = cropImage();
                 if (croppedBitmap != null) {
-                    saveCroppedImage(croppedBitmap);
+                    saveImage(croppedBitmap);
                 }
             } else {
                 Toast.makeText(this, "No hay imagen cargada", Toast.LENGTH_SHORT).show();
@@ -101,6 +104,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "No hay imagen cargada", Toast.LENGTH_SHORT).show();
             }
         });
+
+        btnChangeRegion.setOnClickListener(v -> region.changeAspectRegion(this));
 
         imageView.setOnTouchListener(touchListener());
     }
@@ -257,11 +262,31 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
 
+        int centerX = width / 2;
+        int centerY = height / 2;
+
+        float angleInRadians = (float) Math.toRadians(rotationAngle);
+
+        // Calcular las nuevas coordenadas (x', y') después de la rotación
+        float cosAngle = (float) Math.cos(angleInRadians);
+        float sinAngle = (float) Math.sin(angleInRadians);
+
+        // Aplicar la fórmula de rotación
+        float newX = (x - centerX) * cosAngle - (y - centerY) * sinAngle + centerX;
+        float newY = (x - centerX) * sinAngle + (y - centerY) * cosAngle + centerY;
+
+        Log.d("Point", x+","+y);
+        Log.d("RegionPoint", ((int) region.getX())+"," + ((int) region.getY()));
+
+        Bitmap b = Bitmap.createBitmap(bitmap, x, y, width, height);
+
+        Bitmap rotate = Bitmap.createBitmap(bitmap, (int) newX, (int) newY, width, height, matrix, true);
+
         // Recortar y devolver el Bitmap
-        return Bitmap.createBitmap(bitmap, x, y, width, height);
+        return rotate;
     }
 
-    private void saveCroppedImage(Bitmap croppedBitmap) {
+    private void saveImage(Bitmap bitmap) {
         try {
             // Generar un nombre de archivo
             String fileName = "cropped_image_" + System.currentTimeMillis() + ".png";
@@ -269,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Guardar el bitmap
             FileOutputStream outputStream = new FileOutputStream(file);
-            croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
             outputStream.flush();
             outputStream.close();
 
@@ -289,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
     private void drawRotationInfo() {
         float[] values = new float[9];
         matrix.getValues(values);
-        float currentRotation = (float) Math.toDegrees(Math.atan2(values[Matrix.MSKEW_X], values[Matrix.MSCALE_X]));
-        txtGrados.setText("Grados de la imagen: " + String.format("%.2f°", currentRotation));
+        rotationAngle = (float) Math.toDegrees(Math.atan2(values[Matrix.MSKEW_X], values[Matrix.MSCALE_X]));
+        txtGrados.setText("Grados de la imagen: " + String.format("%.2f°", rotationAngle));
     }
 }

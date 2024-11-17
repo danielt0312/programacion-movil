@@ -302,7 +302,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     private void resetImagePosition() {
         matrix.reset();
         imageView.setImageMatrix(matrix);

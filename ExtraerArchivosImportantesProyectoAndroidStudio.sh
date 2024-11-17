@@ -6,13 +6,13 @@
 # 1) El archivo instalador de la aplicación
 # 2) El archivo zip con los archivos necesarios para la reconstrucción de la aplicación - De menor tamaño en comparación con el ZIP generado al comprimir todo el proyecto
 
-NombreProyecto=Z_ITI271304_U2_TORRES_COLORADO_JUAN_DANIEL
+NombreProyecto=Z_ITI271304_U3_TORRES_COLORADO_JUAN_DANIEL
 
 NombreCarpeta=Temporal_${NombreProyecto}
 ApellidoPaternoEstudiante=torres
 ApellidoMaternoEstudiante=colorado
 NombreEstudiante=juan_daniel
-ClaveGrupoEstudiante=iti-271304_u2
+ClaveGrupoEstudiante=iti-271304_u3
 
 # Los siguientes casos son exclusivos (En español: es uno o es otro, pero no ambos)
 # Caso 1: Uso del profesor para compartir un fuente con la clase

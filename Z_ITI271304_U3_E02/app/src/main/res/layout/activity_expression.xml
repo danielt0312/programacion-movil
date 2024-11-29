@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ExpressionActivity">
+
+    <!-- Botón de regresar en ícono similar al de KarnaughActivity -->
+    <ImageButton
+        android:id="@+id/btn_back_expression"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_back"
+        android:contentDescription="Regresar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_margin="16dp" />
+
+    <!-- Botón para dibujar el circuito, centrado arriba -->
+    <Button
+        android:id="@+id/btn_draw_circuit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dibujar Circuito"
+        app:layout_constraintTop_toBottomOf="@id/btn_back_expression"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Contenedor para mostrar el proceso de simplificación -->
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/btn_draw_circuit"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_margin="16dp">
+
+        <TextView
+            android:id="@+id/expression_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="#EFEFEF" />
+
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

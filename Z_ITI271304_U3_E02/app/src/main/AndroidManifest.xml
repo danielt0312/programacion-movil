@@ -22,20 +22,18 @@
             </intent-filter>
         </activity>
 
-        <!-- Agregar la nueva actividad KarnaughActivity -->
         <activity
             android:name=".KarnaughActivity"
             android:exported="false">
         </activity>
 
-        <!-- Agregar la nueva actividad ExpressionActivity -->
         <activity
             android:name=".ExpressionActivity"
             android:exported="false">
         </activity>
 
-        <!-- Agregar la nueva actividad CircuitActivity -->
         <activity android:name=".CircuitActivity" />
+        <activity android:name=".TorusActivity" />
     </application>
 
 </manifest>

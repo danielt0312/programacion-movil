@@ -43,12 +43,18 @@ public class KarnaughActivity extends AppCompatActivity {
             errorText.setGravity(Gravity.CENTER);
             karnaughContainer.addView(errorText);
         }
+        String initialExpression = calculateExpression(numVariables, outputs);
 
         Button btnViewExpression = findViewById(R.id.btn_view_expression);
         btnViewExpression.setOnClickListener(v -> {
-            String initialExpression = calculateExpression(numVariables, outputs);
-
             Intent expressionIntent = new Intent(KarnaughActivity.this, ExpressionActivity.class);
+            expressionIntent.putExtra("expression", initialExpression);
+            startActivity(expressionIntent);
+        });
+
+        Button btn_view_3d_k_map = findViewById(R.id.btn_view_3d_k_map);
+        btn_view_3d_k_map.setOnClickListener(v -> {
+            Intent expressionIntent = new Intent(KarnaughActivity.this, TorusActivity.class);
             expressionIntent.putExtra("expression", initialExpression);
             startActivity(expressionIntent);
         });
